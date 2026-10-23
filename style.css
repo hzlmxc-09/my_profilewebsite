@@ -1395,24 +1395,37 @@ body.overlay-open {
     resize: vertical;
 }
 
+/* Name big, Elay small, NICKNAME label smallest (centered, under Elay) */
+.profile-intro { text-align: center; padding-bottom: 14px; }
+.profile-intro h2 { font-size: clamp(22px, 2.2vw, 30px); line-height: 1.25; margin: 0; }
+.profile-nickname { margin: 7px 0 0; font-size: 14px; font-weight: 700; letter-spacing: 2px; line-height: 1.2; }
+.nickname-label { margin: 3px 0 0; font-size: 8px; font-weight: 700; letter-spacing: 2px; color: var(--muted); }
 
-/* Profile name hierarchy: full name first, nickname second, label smallest */
-.profile-intro h2 {
-    margin: 0 0 5px;
-    font-size: clamp(21px, 2vw, 27px);
-    line-height: 1.2;
+/* Motto: label on the left, quote mark centered above the motto */
+.motto-box { padding: 14px 13px 12px; }
+.motto-box .motto-label {
+    margin: 0 0 4px; text-align: left; font-family: "Segoe UI", "Trebuchet MS", Arial, sans-serif;
+    font-size: 10px; font-style: normal; font-weight: 800; letter-spacing: 1.5px; color: var(--purple-bright);
 }
-.profile-nickname {
-    margin: 0 0 2px;
-    font-family: Georgia, "Times New Roman", serif;
-    font-size: 24px;
-    line-height: 1.15;
-    letter-spacing: 1px;
-}
-.nickname-label {
-    margin: 0;
-    color: var(--muted);
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 2px;
-}
+.motto-box .quote-mark { position: static; display: block; height: 24px; line-height: 38px; text-align: center; font-size: 38px; }
+
+label.pill-action { cursor: pointer; }
+
+/* Interests: text left, photos right; buttons below */
+.interest-list { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 12px; }
+.interest-col { display: grid; gap: 10px; min-width: 0; align-content: start; }
+.interest-entry-text-only { grid-template-columns: minmax(0, 1fr) 30px; }
+.interest-entry-photo-only, .expanded-interest-list .interest-entry-photo-only { grid-template-columns: minmax(0, 1fr); padding: 8px; }
+.interest-entry-photo-only .interest-entry-photo { height: 150px; max-height: none; object-fit: cover; }
+.interest-toolbar { margin: 15px 0 0; }
+.expanded-interest-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.expanded-interest-list .interest-entry-photo-only .interest-entry-photo { height: 200px; max-height: none; }
+@media (max-width: 520px) { .interest-list, .expanded-interest-list { grid-template-columns: 1fr; } }
+
+/* Hobbies: text left, photos right */
+.hobby-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; align-items: start; margin-top: 14px; }
+.hobby-col { min-width: 0; }
+.hobby-photo-col .hobby-stage { margin-top: 0; }
+.hobby-text-controls { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+.hobby-caption { text-align: center; margin-top: 16px; }
+@media (max-width: 720px) { .hobby-columns { grid-template-columns: 1fr; } }
