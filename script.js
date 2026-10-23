@@ -165,25 +165,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
     /* MY STRENGTHS */
 
-    let strengths = [];
-    let strengthId = 0;
+    const strengths = [
+        "Persistence", "Curiosity", "Attention to detail", "Resourcefulness",
+        "Empathy", "Adaptability", "Creativity", "Practical thinker"
+    ].map(function (text) { return { text: text }; });
 
-    const strengthForm = $("strengthForm");
-    const strengthInput = $("strengthInput");
     const strengthList = $("strengthList");
-
-    $("addStrengthBtn").addEventListener("click", function () {
-        strengthForm.hidden = !strengthForm.hidden;
-
-        if (!strengthForm.hidden) {
-            strengthInput.focus();
-        }
-    });
-
-    $("cancelStrengthBtn").addEventListener("click", function () {
-        strengthForm.reset();
-        strengthForm.hidden = true;
-    });
 
     function renderStrengths() {
         strengthList.replaceChildren();
@@ -198,28 +185,7 @@ document.addEventListener("DOMContentLoaded", function () {
             chip.appendChild(text);
             strengthList.appendChild(chip);
         });
-
-        const emptyMessage = $("strengthEmptyMessage");
-        if (emptyMessage) emptyMessage.hidden = strengths.length > 0;
     }
-
-    strengthForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-
-        const text = strengthInput.value.trim();
-
-        if (!text) {
-            strengthInput.focus();
-            return;
-        }
-
-        strengths.push({ id: ++strengthId, text: text });
-
-        strengthForm.reset();
-        strengthForm.hidden = true;
-        renderStrengths();
-        showStatus("Strength added.");
-    });
 
     renderStrengths();
 
@@ -350,7 +316,8 @@ document.addEventListener("DOMContentLoaded", function () {
         });
 
         const empty = interests.length === 0;
-        $("interestEmptyMessage").hidden = !empty;
+        const emptyMain = $("interestEmptyMessage");
+        if (emptyMain) emptyMain.hidden = !empty;
         $("expandedInterestEmptyMessage").hidden = !empty;
     }
 
@@ -651,6 +618,13 @@ document.addEventListener("DOMContentLoaded", function () {
             }
 
             input.value = "";
+        }
+    });
+
+    $("addHobbyPhotoBtn").addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            hobbyUpload.click();
         }
     });
 
