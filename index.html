@@ -29,7 +29,6 @@
     </header>
 
     <main class="dashboard">
-        <!-- LEFT COLUMN: PERSONAL INFORMATION -->
         <section class="panel profile-panel" aria-labelledby="profileName">
             <button class="icon-button profile-expand" id="expandProfile"
                     type="button" aria-label="Expand profile"
@@ -40,12 +39,7 @@
                 <span class="floating-heart heart-two" aria-hidden="true">✦</span>
                 <div class="profile-ring">
                     <img id="profileImage" alt="Profile photo" src="images/profile.jpg">
-
                 </div>
-                <label class="photo-upload-button" for="profileUpload"
-                       title="Upload profile photo" aria-label="Upload profile photo">＋</label>
-                <input class="visually-hidden" type="file" id="profileUpload"
-                       accept="image/*">
             </div>
 
             <div class="profile-intro">
@@ -102,7 +96,6 @@
             </div>
         </section>
 
-        <!-- RIGHT COLUMN: STRENGTHS, INTERESTS, HOBBIES -->
         <div class="right-column">
             <section class="panel strengths-panel" aria-labelledby="strengthsTitle">
                 <div class="section-heading">
@@ -210,7 +203,6 @@
         </div>
     </main>
 
-    <!-- EXPANDED PROFILE -->
     <div class="overlay" id="profileOverlay" aria-hidden="true">
         <section class="overlay-card expanded-profile-card"
                  role="dialog" aria-modal="true" aria-labelledby="expandedProfileTitle">
@@ -223,71 +215,30 @@
                     <p class="eyebrow">GET TO KNOW ME</p>
                     <h2 id="expandedProfileTitle">Hazel Mae Gelardo Calvo</h2>
                     <p class="nickname" id="expandedProfileNickname">Elay</p>
-                    <p class="expanded-motto" id="expandedProfileMotto">
-                        Everything happens for a reason.
-                    </p>
                 </div>
             </div>
 
-            <div class="expanded-profile-details" id="expandedProfileContent"></div>
+            <div class="expanded-profile-details" id="expandedProfileDetails"></div>
+
+            <div class="motto-box">
+                <span class="quote-mark" aria-hidden="true">“</span>
+                <p id="expandedProfileMotto">Everything happens for a reason.</p>
+                <span class="motto-heart" aria-hidden="true">♡ ✦ ♡</span>
+            </div>
         </section>
     </div>
 
-    <!-- EXPANDED INTERESTS -->
     <div class="overlay" id="interestsOverlay" aria-hidden="true">
         <section class="overlay-card expanded-interests-card"
                  role="dialog" aria-modal="true" aria-labelledby="expandedInterestsTitle">
-            <div class="expanded-interests-heading">
-                <div>
-                    <p class="eyebrow">A LITTLE MORE ABOUT WHAT I LOVE</p>
-                    <h2 id="expandedInterestsTitle">My Interests ♡</h2>
-                    <p class="overlay-subtitle">
-                        Your text and photos remain separate entries.
-                    </p>
-                </div>
-                <button class="overlay-close" id="closeInterestsOverlay" type="button"
-                        aria-label="Close expanded interests">×</button>
-            </div>
-
-            <div class="interest-toolbar">
-                <button class="pill-action" id="overlayAddInterestTextBtn" type="button">
-                    <span aria-hidden="true">☷</span> Add text
-                </button>
-                <button class="pill-action" id="overlayAddInterestPhotoBtn" type="button">
-                    <span aria-hidden="true">▧</span> Add photo
-                </button>
-            </div>
-
-            <div class="interest-list expanded-interest-list" id="expandedInterestList"></div>
-            <p class="empty-note" id="expandedInterestEmptyMessage">
-                No interests yet. Add text or photos above.
-            </p>
+            <button class="overlay-close" id="closeInterests" type="button"
+                    aria-label="Close expanded interests">×</button>
+            <p class="eyebrow">THINGS I LOVE</p>
+            <h2 id="expandedInterestsTitle">My Interests <span>♡</span></h2>
+            <div class="expanded-interest-list" id="expandedInterestList"></div>
         </section>
     </div>
 
-    <!-- ADD INTEREST TEXT -->
-    <div class="overlay text-dialog-overlay" id="textDialog" aria-hidden="true">
-        <section class="overlay-card text-dialog" role="dialog" aria-modal="true"
-                 aria-labelledby="textDialogTitle">
-            <button class="overlay-close" id="cancelTextDialogX" type="button"
-                    aria-label="Close text editor">×</button>
-            <p class="eyebrow">A THOUGHT, A FAVORITE, A LITTLE JOY</p>
-            <h2 id="textDialogTitle">Add an interest</h2>
-
-            <form id="interestTextForm">
-                <label for="interestInput">What do you love?</label>
-                <textarea id="interestInput" maxlength="1000"
-                          placeholder="Write your interest here..." required></textarea>
-                <div class="dialog-actions">
-                    <button class="subtle-button" id="cancelTextDialog"
-                            type="button">Cancel</button>
-                    <button class="primary-button" type="submit">Save text</button>
-                </div>
-            </form>
-        </section>
-    </div>
-
-    <div class="status-message" id="statusMessage" role="status"
-         aria-live="polite"></div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
