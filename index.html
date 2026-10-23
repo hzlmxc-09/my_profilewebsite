@@ -29,6 +29,7 @@
     </header>
 
     <main class="dashboard">
+        <!-- LEFT COLUMN: PERSONAL INFORMATION -->
         <section class="panel profile-panel" aria-labelledby="profileName">
             <button class="icon-button profile-expand" id="expandProfile"
                     type="button" aria-label="Expand profile"
@@ -43,12 +44,9 @@
             </div>
 
             <div class="profile-intro">
-                <p class="eyebrow">A LITTLE ABOUT ME</p>
+                <p class="nickname-label">MY NICKNAME</p>
+                <p class="nickname profile-nickname" id="profileNickname">Elay</p>
                 <h2 id="profileName">Hazel Mae Gelardo Calvo</h2>
-                <p class="nickname" id="profileNickname">Elay</p>
-                <p class="profile-description">
-                    A little space about me and the things I love.
-                </p>
             </div>
 
             <div class="profile-details">
@@ -90,41 +88,29 @@
             </div>
 
             <div class="motto-box">
+                <p class="eyebrow motto-label">MY MOTTO IN LIFE</p>
                 <span class="quote-mark" aria-hidden="true">“</span>
                 <p id="profileMotto">Everything happens for a reason.</p>
                 <span class="motto-heart" aria-hidden="true">♡ ✦ ♡</span>
             </div>
         </section>
 
+        <!-- RIGHT COLUMN: STRENGTHS, INTERESTS, HOBBIES -->
         <div class="right-column">
             <section class="panel strengths-panel" aria-labelledby="strengthsTitle">
                 <div class="section-heading">
                     <div>
-                        <p class="eyebrow">WHAT MAKES ME, ME</p>
-                        <h2 id="strengthsTitle">My Strengths <span>✧</span></h2>
+                        
+                        <h2 id="strengthsTitle">These Strengths in Me <span>✧</span></h2>
                     </div>
-                    <button class="round-add" id="addStrengthBtn" type="button"
-                            aria-label="Add a strength" title="Add a strength">+</button>
+
                 </div>
 
                 <p class="section-description">
                     Little things I value about myself.
                 </p>
-
-                <form class="strength-form" id="strengthForm" hidden>
-                    <label class="visually-hidden" for="strengthInput">Write a strength</label>
-                    <input id="strengthInput" type="text" maxlength="100"
-                           placeholder="Write a strength..." autocomplete="off">
-                    <button class="primary-button" type="submit">Add</button>
-                    <button class="subtle-button" id="cancelStrengthBtn"
-                            type="button">Cancel</button>
-                </form>
-
-                <div class="strength-list" id="strengthList"></div>
-                <p class="empty-note" id="strengthEmptyMessage">
-                    Your strengths will appear here. Tap + to add one.
-                </p>
-            </section>
+<div class="strength-list" id="strengthList"></div>
+</section>
 
             <section class="panel interests-panel" aria-labelledby="interestsTitle">
                 <div class="section-heading">
@@ -136,9 +122,7 @@
                             aria-label="Expand interests" title="Expand interests">⛶</button>
                 </div>
 
-                <p class="section-description">
-                    Add a thought or a photo — separately, whenever you like.
-                </p>
+                <p class="section-description">Little things I enjoy and love.</p>
 
                 <div class="interest-toolbar">
                     <button class="pill-action" id="addInterestTextBtn" type="button">
@@ -153,10 +137,7 @@
                        accept="image/*" multiple>
 
                 <div class="interest-list" id="interestList"></div>
-                <p class="empty-note" id="interestEmptyMessage">
-                    Your interests will appear here. Text and photos can be added
-                    and deleted independently.
-                </p>
+                
             </section>
 
             <section class="panel hobbies-panel" aria-labelledby="hobbiesTitle">
@@ -172,7 +153,16 @@
                 <input class="visually-hidden" type="file" id="hobbyUpload"
                        accept="image/*" multiple>
 
-                <p class="section-description">A little gallery of things I enjoy.</p>
+                <p class="section-description">Photos and little things I love doing.</p>
+                <div class="hobby-text-list" id="hobbyTextList"></div>
+                <div class="hobby-text-controls">
+                    <button class="pill-action" id="addHobbyTextBtn" type="button">＋ Add text</button>
+                </div>
+                <div class="hobby-text-editor" id="hobbyTextEditor" hidden>
+                    <textarea id="hobbyTextInput" maxlength="300" placeholder="Write a hobby..." aria-label="Write a hobby"></textarea>
+                    <button class="primary-button" id="saveHobbyTextBtn" type="button">Save</button>
+                    <button class="subtle-button" id="cancelHobbyTextBtn" type="button">Cancel</button>
+                </div>
 
                 <div class="hobby-stage">
                     <button class="slide-arrow" id="prevBtn" type="button"
@@ -183,7 +173,7 @@
                         <div class="slide-placeholder" id="slidePlaceholder">
                             <span class="placeholder-icon" aria-hidden="true">▧</span>
                             <strong>Your hobby photos</strong>
-                            <span>Upload photos to begin your gallery.</span>
+                            <span>Use the + button to add photos.</span>
                         </div>
                     </div>
 
@@ -203,6 +193,7 @@
         </div>
     </main>
 
+    <!-- EXPANDED PROFILE -->
     <div class="overlay" id="profileOverlay" aria-hidden="true">
         <section class="overlay-card expanded-profile-card"
                  role="dialog" aria-modal="true" aria-labelledby="expandedProfileTitle">
@@ -215,30 +206,72 @@
                     <p class="eyebrow">GET TO KNOW ME</p>
                     <h2 id="expandedProfileTitle">Hazel Mae Gelardo Calvo</h2>
                     <p class="nickname" id="expandedProfileNickname">Elay</p>
+                    <p class="eyebrow motto-label">MY MOTTO IN LIFE</p>
+                    <p class="expanded-motto" id="expandedProfileMotto">
+                        Everything happens for a reason.
+                    </p>
                 </div>
             </div>
 
-            <div class="expanded-profile-details" id="expandedProfileDetails"></div>
-
-            <div class="motto-box">
-                <span class="quote-mark" aria-hidden="true">“</span>
-                <p id="expandedProfileMotto">Everything happens for a reason.</p>
-                <span class="motto-heart" aria-hidden="true">♡ ✦ ♡</span>
-            </div>
+            <div class="expanded-profile-details" id="expandedProfileContent"></div>
         </section>
     </div>
 
+    <!-- EXPANDED INTERESTS -->
     <div class="overlay" id="interestsOverlay" aria-hidden="true">
         <section class="overlay-card expanded-interests-card"
                  role="dialog" aria-modal="true" aria-labelledby="expandedInterestsTitle">
-            <button class="overlay-close" id="closeInterests" type="button"
-                    aria-label="Close expanded interests">×</button>
-            <p class="eyebrow">THINGS I LOVE</p>
-            <h2 id="expandedInterestsTitle">My Interests <span>♡</span></h2>
-            <div class="expanded-interest-list" id="expandedInterestList"></div>
+            <div class="expanded-interests-heading">
+                <div>
+                    <p class="eyebrow">A LITTLE MORE ABOUT WHAT I LOVE</p>
+                    <h2 id="expandedInterestsTitle">My Interests ♡</h2>
+                    <p class="overlay-subtitle">
+                        Your text and photos remain separate entries.
+                    </p>
+                </div>
+                <button class="overlay-close" id="closeInterestsOverlay" type="button"
+                        aria-label="Close expanded interests">×</button>
+            </div>
+
+            <div class="interest-toolbar">
+                <button class="pill-action" id="overlayAddInterestTextBtn" type="button">
+                    <span aria-hidden="true">☷</span> Add text
+                </button>
+                <button class="pill-action" id="overlayAddInterestPhotoBtn" type="button">
+                    <span aria-hidden="true">▧</span> Add photo
+                </button>
+            </div>
+
+            <div class="interest-list expanded-interest-list" id="expandedInterestList"></div>
+            <p class="empty-note" id="expandedInterestEmptyMessage">
+                No interests yet. Add text or photos above.
+            </p>
         </section>
     </div>
 
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <!-- ADD INTEREST TEXT -->
+    <div class="overlay text-dialog-overlay" id="textDialog" aria-hidden="true">
+        <section class="overlay-card text-dialog" role="dialog" aria-modal="true"
+                 aria-labelledby="textDialogTitle">
+            <button class="overlay-close" id="cancelTextDialogX" type="button"
+                    aria-label="Close text editor">×</button>
+            <p class="eyebrow">A THOUGHT, A FAVORITE, A LITTLE JOY</p>
+            <h2 id="textDialogTitle">Add an interest</h2>
+
+            <form id="interestTextForm">
+                <label for="interestInput">What do you love?</label>
+                <textarea id="interestInput" maxlength="1000"
+                          placeholder="Write your interest here..." required></textarea>
+                <div class="dialog-actions">
+                    <button class="subtle-button" id="cancelTextDialog"
+                            type="button">Cancel</button>
+                    <button class="primary-button" type="submit">Save text</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div class="status-message" id="statusMessage" role="status"
+         aria-live="polite"></div>
 </body>
 </html>
