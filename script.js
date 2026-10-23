@@ -1,451 +1,746 @@
 
 "use strict";
 
-const $ = (id) => document.getElementById(id);
+document.addEventListener("DOMContentLoaded", function () {
+    const $ = (id) => document.getElementById(id);
 
-const themeToggle = $("themeToggle");
-const profileImage = $("profileImage");
-const expandedProfileImage = $("expandedProfileImage");
-const profileOverlay = $("profileOverlay");
-const interestsOverlay = $("interestsOverlay");
-const toast = $("toast");
+    /* THEME */
 
-let toastTimeout;
-let strengths = [
-    "Caring",
-    "Understanding",
-    "Creative",
-    "Determined"
-];
+    const themeToggle = $("themeToggle");
 
-let interests = [];
-let hobbyPhotos = [];
-let currentHobbyIndex = 0;
-let lastFocusedElement = null;
-
-function showToast(message) {
-    toast.textContent = message;
-    toast.classList.add("show");
-
-    clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 2500);
-}
-
-function openOverlay(overlay) {
-    lastFocusedElement = document.activeElement;
-    overlay.classList.add("open");
-    overlay.setAttribute("aria-hidden", "false");
-    document.body.style.overflow = "hidden";
-
-    const closeButton = overlay.querySelector(".overlay-close");
-    if (closeButton) closeButton.focus();
-}
-
-function closeOverlay(overlay) {
-    overlay.classList.remove("open");
-    overlay.setAttribute("aria-hidden", "true");
-
-    if (!document.querySelector(".overlay.open")) {
-        document.body.style.overflow = "";
+    function updateTheme() {
+        const isLight = document.body.classList.contains("light-mode");
+        themeToggle.textContent = isLight ? "☾" : "☀";
+        themeToggle.setAttribute(
+            "aria-label",
+            isLight ? "Switch to dark mode" : "Switch to light mode"
+        );
+        themeToggle.title = isLight ? "Dark mode" : "Light mode";
     }
 
-    if (lastFocusedElement) lastFocusedElement.focus();
-}
+    try {
+        if (localStorage.getItem("profile-theme") === "light") {
+            document.body.classList.add("light-mode");
+        }
+    } catch (error) {
+        // The theme toggle still works when storage is unavailable.
+    }
 
-function closeAllOverlays() {
-    document.querySelectorAll(".overlay.open").forEach((overlay) => {
-        overlay.classList.remove("open");
-        overlay.setAttribute("aria-hidden", "true");
-    });
+    updateTheme();
 
-    document.body.style.overflow = "";
-}
+    themeToggle.addEventListener("click", function () {
+        document.body.classList.toggle("light-mode");
+        updateTheme();
 
-function getProfileDetails() {
-    return [
-        ["Age", $("profileAge").textContent],
-        ["Birthday", $("profileBirthday").textContent],
-        ["Currently living in", $("profileAddress").textContent],
-        ["Hometown", $("profileHometown").textContent],
-        ["Email", $("profileEmail").textContent],
-        ["School", $("profileSchool").textContent],
-        ["Course", $("profileCourse").textContent]
-    ];
-}
-
-function renderExpandedProfile() {
-    expandedProfileImage.src = profileImage.src;
-    $("expandedProfileTitle").textContent = $("profileName").textContent;
-    $("expandedProfileNickname").textContent = $("profileNickname").textContent;
-    $("expandedProfileMotto").textContent = $("profileMotto").textContent;
-
-    const details = $("expandedProfileDetails");
-    details.replaceChildren();
-
-    getProfileDetails().forEach(([label, value]) => {
-        const row = document.createElement("div");
-        row.className = "detail-row";
-
-        const icon = document.createElement("span");
-        icon.className = "detail-icon";
-        icon.setAttribute("aria-hidden", "true");
-        icon.textContent = "✧";
-
-        const labelElement = document.createElement("span");
-        labelElement.className = "detail-label";
-        labelElement.textContent = label;
-
-        const valueElement = document.createElement("span");
-        valueElement.className = "detail-value";
-        valueElement.textContent = value;
-
-        row.append(icon, labelElement, valueElement);
-        details.appendChild(row);
-    });
-}
-
-$("expandProfile").addEventListener("click", () => {
-    renderExpandedProfile();
-    openOverlay(profileOverlay);
-});
-
-$("closeProfile").addEventListener("click", () => {
-    closeOverlay(profileOverlay);
-});
-
-$("expandInterestsBtn").addEventListener("click", () => {
-    renderInterests();
-    openOverlay(interestsOverlay);
-});
-
-$("closeInterests").addEventListener("click", () => {
-    closeOverlay(interestsOverlay);
-});
-
-document.querySelectorAll(".overlay").forEach((overlay) => {
-    overlay.addEventListener("click", (event) => {
-        if (event.target === overlay) {
-            closeOverlay(overlay);
+        try {
+            localStorage.setItem(
+                "profile-theme",
+                document.body.classList.contains("light-mode") ? "light" : "dark"
+            );
+        } catch (error) {
+            // Theme changes remain active for this page session.
         }
     });
-});
 
-document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-        closeAllOverlays();
-    }
-});
+    /* STATUS MESSAGE */
 
-themeToggle.addEventListener("click", () => {
-    const isLight = document.body.classList.toggle("light-mode");
-    themeToggle.textContent = isLight ? "☾" : "☀";
-    themeToggle.setAttribute(
-        "aria-label",
-        isLight ? "Switch to dark mode" : "Switch to light mode"
-    );
-    themeToggle.title = isLight ? "Switch to dark mode" : "Switch to light mode";
-});
+    let statusTimer;
 
-function renderStrengths() {
-    const list = $("strengthList");
-    list.replaceChildren();
+    function showStatus(message) {
+        const status = $("statusMessage");
+        status.textContent = message;
+        status.classList.add("visible");
 
-    strengths.forEach((strength, index) => {
-        const chip = document.createElement("div");
-        chip.className = "strength-chip";
+        clearTimeout(statusTimer);
 
-        const text = document.createElement("span");
-        text.textContent = strength;
-
-        const remove = document.createElement("button");
-        remove.type = "button";
-        remove.className = "delete-button";
-        remove.textContent = "×";
-        remove.setAttribute("aria-label", `Delete ${strength}`);
-        remove.addEventListener("click", () => {
-            strengths.splice(index, 1);
-            renderStrengths();
-        });
-
-        chip.append(text, remove);
-        list.appendChild(chip);
-    });
-
-    $("strengthEmptyMessage").hidden = strengths.length > 0;
-}
-
-$("addStrengthBtn").addEventListener("click", () => {
-    $("strengthForm").hidden = false;
-    $("strengthInput").focus();
-});
-
-$("cancelStrengthBtn").addEventListener("click", () => {
-    $("strengthForm").hidden = true;
-    $("strengthInput").value = "";
-});
-
-$("strengthForm").addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    const input = $("strengthInput");
-    const value = input.value.trim();
-
-    if (!value) {
-        showToast("Please enter a strength first.");
-        input.focus();
-        return;
+        statusTimer = setTimeout(function () {
+            status.classList.remove("visible");
+        }, 2600);
     }
 
-    strengths.push(value);
-    input.value = "";
-    $("strengthForm").hidden = true;
-    renderStrengths();
-    showToast("Strength added!");
-});
+    /* PROFILE DATA */
 
-function renderInterests() {
-    const list = $("interestList");
-    const expandedList = $("expandedInterestList");
+    const profile = {
+        name: "Hazel Mae Gelardo Calvo",
+        nickname: "Elay",
+        age: "20 years old",
+        birthday: "January 11, 2006",
+        address: "Barangay Ermita, Cebu City",
+        hometown: "Tabon, Dalaguete, Cebu",
+        email: "calvohazelmae@gmail.com",
+        school: "University of Cebu",
+        course: "BS Information Technology",
+        motto: "Everything happens for a reason."
+    };
 
-    list.replaceChildren();
-    expandedList.replaceChildren();
+    $("profileName").textContent = profile.name;
+    $("profileNickname").textContent = profile.nickname;
+    $("profileAge").textContent = profile.age;
+    $("profileBirthday").textContent = profile.birthday;
+    $("profileAddress").textContent = profile.address;
+    $("profileHometown").textContent = profile.hometown;
+    $("profileEmail").textContent = profile.email;
+    $("profileSchool").textContent = profile.school;
+    $("profileCourse").textContent = profile.course;
+    $("profileMotto").textContent = profile.motto;
 
-    interests.forEach((interest, index) => {
-        const card = document.createElement("article");
-        card.className = "interest-item";
+    $("expandedProfileTitle").textContent = profile.name;
+    $("expandedProfileNickname").textContent = profile.nickname;
+    $("expandedProfileMotto").textContent = profile.motto;
 
-        if (interest.type === "image") {
-            card.classList.add("interest-item-image");
+    const expandedProfileContent = $("expandedProfileContent");
 
-            const image = document.createElement("img");
-            image.src = interest.src;
-            image.alt = interest.name || "Interest photo";
-            card.appendChild(image);
-        } else {
-            card.classList.add("interest-item-text");
-
-            const paragraph = document.createElement("p");
-            paragraph.textContent = interest.text;
-            card.appendChild(paragraph);
-        }
-
-        const footer = document.createElement("div");
-        footer.className = "interest-item-footer";
+    [
+        ["Age", profile.age],
+        ["Birthday", profile.birthday],
+        ["Currently living in", profile.address],
+        ["Hometown", profile.hometown],
+        ["Email", profile.email],
+        ["School", profile.school],
+        ["Course", profile.course]
+    ].forEach(function (item) {
+        const card = document.createElement("div");
+        card.className = "expanded-detail-card";
 
         const label = document.createElement("span");
-        label.textContent = interest.type === "image" ? "Photo" : "Note";
+        label.textContent = item[0];
 
-        const remove = document.createElement("button");
-        remove.type = "button";
-        remove.className = "delete-button";
-        remove.textContent = "×";
-        remove.setAttribute("aria-label", "Delete this interest");
-        remove.addEventListener("click", () => {
-            interests.splice(index, 1);
-            renderInterests();
-            showToast("Interest deleted.");
-        });
+        const value = document.createElement("p");
+        value.textContent = item[1];
 
-        footer.append(label, remove);
-        card.appendChild(footer);
-        list.appendChild(card);
-
-        const expandedCard = card.cloneNode(true);
-        const expandedRemove = expandedCard.querySelector(".delete-button");
-
-        expandedRemove.addEventListener("click", () => {
-            interests.splice(index, 1);
-            renderInterests();
-            showToast("Interest deleted.");
-        });
-
-        expandedList.appendChild(expandedCard);
+        card.append(label, value);
+        expandedProfileContent.appendChild(card);
     });
 
-    $("interestEmptyMessage").hidden = interests.length > 0;
-}
+    /* OVERLAY CONTROLS */
 
-$("addInterestTextBtn").addEventListener("click", () => {
-    if (document.querySelector(".interest-editor-wrap")) return;
+    let lastFocus = null;
 
-    const wrapper = document.createElement("div");
-    wrapper.className = "interest-editor-wrap";
+    function openOverlay(overlay, trigger, focusTarget) {
+        lastFocus = trigger || document.activeElement;
+        overlay.classList.add("is-open");
+        overlay.setAttribute("aria-hidden", "false");
+        document.body.classList.add("overlay-open");
 
-    const textarea = document.createElement("textarea");
-    textarea.className = "interest-editor";
-    textarea.maxLength = 1000;
-    textarea.placeholder = "Write something you love...";
-    textarea.setAttribute("aria-label", "Write an interest");
+        if (focusTarget) {
+            focusTarget.focus();
+        }
+    }
 
-    const actions = document.createElement("div");
-    actions.className = "editor-actions";
+    function closeOverlay(overlay, restoreFocus = true) {
+        overlay.classList.remove("is-open");
+        overlay.setAttribute("aria-hidden", "true");
 
-    const save = document.createElement("button");
-    save.type = "button";
-    save.className = "primary-button";
-    save.textContent = "Save";
+        const anotherOpen = document.querySelector(".overlay.is-open");
+        document.body.classList.toggle("overlay-open", Boolean(anotherOpen));
 
-    const cancel = document.createElement("button");
-    cancel.type = "button";
-    cancel.className = "subtle-button";
-    cancel.textContent = "Cancel";
+        if (restoreFocus && lastFocus && lastFocus.isConnected) {
+            lastFocus.focus();
+        }
+    }
 
-    save.addEventListener("click", () => {
-        const text = textarea.value.trim();
+    /* PROFILE PHOTO */
+
+    const profileImage = $("profileImage");
+    const expandedProfileImage = $("expandedProfileImage");
+
+    expandedProfileImage.src = profileImage.src;
+
+    const profileOverlay = $("profileOverlay");
+
+    $("expandProfile").addEventListener("click", function () {
+        expandedProfileImage.src = profileImage.src;
+        openOverlay(profileOverlay, this, $("closeProfile"));
+    });
+
+    $("closeProfile").addEventListener("click", function () {
+        closeOverlay(profileOverlay);
+    });
+
+    profileOverlay.addEventListener("click", function (event) {
+        if (event.target === profileOverlay) {
+            closeOverlay(profileOverlay);
+        }
+    });
+
+    /* MY STRENGTHS */
+
+    let strengths = [];
+    let strengthId = 0;
+
+    const strengthForm = $("strengthForm");
+    const strengthInput = $("strengthInput");
+    const strengthList = $("strengthList");
+
+    $("addStrengthBtn").addEventListener("click", function () {
+        strengthForm.hidden = !strengthForm.hidden;
+
+        if (!strengthForm.hidden) {
+            strengthInput.focus();
+        }
+    });
+
+    $("cancelStrengthBtn").addEventListener("click", function () {
+        strengthForm.reset();
+        strengthForm.hidden = true;
+    });
+
+    function renderStrengths() {
+        strengthList.replaceChildren();
+
+        strengths.forEach(function (strength) {
+            const chip = document.createElement("div");
+            chip.className = "strength-chip";
+
+            const text = document.createElement("span");
+            text.textContent = strength.text;
+
+            chip.appendChild(text);
+            strengthList.appendChild(chip);
+        });
+
+        const emptyMessage = $("strengthEmptyMessage");
+        if (emptyMessage) emptyMessage.hidden = strengths.length > 0;
+    }
+
+    strengthForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const text = strengthInput.value.trim();
 
         if (!text) {
-            showToast("Please write something first.");
-            textarea.focus();
+            strengthInput.focus();
             return;
         }
 
-        interests.push({ type: "text", text });
-        renderInterests();
-        wrapper.remove();
-        showToast("Interest added!");
+        strengths.push({ id: ++strengthId, text: text });
+
+        strengthForm.reset();
+        strengthForm.hidden = true;
+        renderStrengths();
+        showStatus("Strength added.");
     });
 
-    cancel.addEventListener("click", () => wrapper.remove());
+    renderStrengths();
 
-    actions.append(save, cancel);
-    wrapper.append(textarea, actions);
-    $("interestsPanel");
-    $("addInterestTextBtn").parentElement.after(wrapper);
-    textarea.focus();
-});
+    /* MY INTERESTS: TEXT AND PHOTOS ARE SEPARATE ITEMS */
 
-$("addInterestPhotoBtn").addEventListener("click", () => {
-    $("interestPhotoInput").click();
-});
+    let interests = [];
+    let interestId = 0;
 
-$("interestPhotoInput").addEventListener("change", (event) => {
-    const files = Array.from(event.target.files || []);
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+    const interestsOverlay = $("interestsOverlay");
+    const textDialog = $("textDialog");
+    const interestInput = $("interestInput");
+    const interestTextForm = $("interestTextForm");
 
-    imageFiles.forEach((file) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            interests.push({
-                type: "image",
-                src: reader.result,
-                name: file.name
-            });
-            renderInterests();
-        };
-
-        reader.readAsDataURL(file);
-    });
-
-    if (imageFiles.length) {
-        showToast("Photo added!");
-    }
-
-    event.target.value = "";
-});
-
-const hobbyUpload = $("hobbyUpload");
-
-hobbyUpload.addEventListener("change", (event) => {
-    const files = Array.from(event.target.files || []);
-    const imageFiles = files.filter((file) => file.type.startsWith("image/"));
-
-    imageFiles.forEach((file) => {
-        const reader = new FileReader();
-
-        reader.onload = () => {
-            hobbyPhotos.push({
-                src: reader.result,
-                name: file.name
-            });
-
-            renderHobbies();
-            showToast("Hobby photo added!");
-        };
-
-        reader.readAsDataURL(file);
-    });
-
-    event.target.value = "";
-});
-
-function renderHobbies() {
-    const image = $("hobbyImage");
-    const placeholder = $("slidePlaceholder");
-    const thumbnails = $("hobbyThumbnails");
-    const previous = $("prevBtn");
-    const next = $("nextBtn");
-
-    thumbnails.replaceChildren();
-
-    if (!hobbyPhotos.length) {
-        image.hidden = true;
-        placeholder.hidden = false;
-        previous.disabled = true;
-        next.disabled = true;
-        $("hobbyCaption").textContent =
-            "Your favorite hobby moments will appear here.";
-        return;
-    }
-
-    currentHobbyIndex = Math.max(
-        0,
-        Math.min(currentHobbyIndex, hobbyPhotos.length - 1)
-    );
-
-    const current = hobbyPhotos[currentHobbyIndex];
-
-    image.src = current.src;
-    image.alt = current.name || "Hobby photo";
-    image.hidden = false;
-    placeholder.hidden = true;
-
-    previous.disabled = hobbyPhotos.length < 2;
-    next.disabled = hobbyPhotos.length < 2;
-
-    $("hobbyCaption").textContent =
-        `${current.name} · ${currentHobbyIndex + 1} of ${hobbyPhotos.length}`;
-
-    hobbyPhotos.forEach((photo, index) => {
-        const thumbnail = document.createElement("button");
-        thumbnail.type = "button";
-        thumbnail.className = "hobby-thumbnail";
-        thumbnail.classList.toggle("active", index === currentHobbyIndex);
-        thumbnail.setAttribute("aria-label", `Show photo ${index + 1}`);
-
-        const thumbImage = document.createElement("img");
-        thumbImage.src = photo.src;
-        thumbImage.alt = "";
-
-        thumbnail.appendChild(thumbImage);
-
-        thumbnail.addEventListener("click", () => {
-            currentHobbyIndex = index;
-            renderHobbies();
+    function addInterest(type, value) {
+        interests.push({
+            id: ++interestId,
+            type: type,
+            value: value
         });
 
-        thumbnails.appendChild(thumbnail);
+        renderInterests();
+    }
+
+    [
+        ["text", "I love chasing and catching sunsets."],
+        ["text", "I love road trips."],
+        ["text", "I like listening to music."],
+        ["text", "I love exploring things that feel right for me."],
+        ["text", "I like learning to play instruments."]
+    ].forEach(function (item) {
+        interests.push({ id: ++interestId, type: item[0], value: item[1] });
     });
-}
+    interests.push({
+        id: ++interestId,
+        type: "photo",
+        value: "images/sunset1.jpg"
+    });
 
-$("prevBtn").addEventListener("click", () => {
-    if (!hobbyPhotos.length) return;
+    function deleteInterest(id) {
+        const item = interests.find((interest) => interest.id === id);
 
-    currentHobbyIndex =
-        (currentHobbyIndex - 1 + hobbyPhotos.length) % hobbyPhotos.length;
+        interests = interests.filter((interest) => interest.id !== id);
+        renderInterests();
 
+        if (item) {
+            showStatus(item.type === "text" ? "Text deleted." : "Photo deleted.");
+        }
+    }
+
+    function makeDeleteButton(item) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "interest-entry-delete";
+        button.textContent = "×";
+        button.title = "Delete";
+        button.setAttribute(
+            "aria-label",
+            "Delete " + (item.type === "text" ? "interest text" : "interest photo")
+        );
+
+        button.addEventListener("click", function () {
+            deleteInterest(item.id);
+        });
+
+        return button;
+    }
+
+    function createInterestCard(item) {
+        const card = document.createElement("article");
+        card.className = "interest-entry";
+        card.dataset.interestId = String(item.id);
+
+        const icon = document.createElement("span");
+        icon.className = "interest-entry-icon";
+        icon.setAttribute("aria-hidden", "true");
+        icon.textContent = item.type === "text" ? "☷" : "▧";
+
+        const main = document.createElement("div");
+        main.className = "interest-entry-main";
+
+        const copy = document.createElement("div");
+        copy.className = "interest-entry-copy";
+
+        const description = document.createElement("p");
+        description.textContent = item.type === "text" ? item.value : "Photo";
+
+        copy.appendChild(description);
+        main.append(icon, copy);
+
+        const remove = makeDeleteButton(item);
+
+        if (item.type === "text") {
+            card.classList.add("interest-entry-text-only");
+            card.append(main, remove);
+            return card;
+        }
+
+        card.classList.add("interest-entry-photo-only");
+
+        const photo = document.createElement("img");
+        photo.className = "interest-entry-photo";
+        photo.src = item.value;
+        photo.alt = "Interest photo";
+        photo.loading = "lazy";
+
+        photo.addEventListener("click", function () {
+            showImagePreview(item.value);
+        });
+
+        const photoRow = document.createElement("div");
+        photoRow.className = "photo-entry-row";
+        photoRow.append(photo, remove);
+
+        card.append(main, photoRow);
+        return card;
+    }
+
+    function renderInterests() {
+        const normalList = $("interestList");
+        const expandedList = $("expandedInterestList");
+
+        normalList.replaceChildren();
+        expandedList.replaceChildren();
+
+        interests.forEach(function (item) {
+            normalList.appendChild(createInterestCard(item));
+            expandedList.appendChild(createInterestCard(item));
+        });
+
+        const empty = interests.length === 0;
+        $("interestEmptyMessage").hidden = !empty;
+        $("expandedInterestEmptyMessage").hidden = !empty;
+    }
+
+    function openTextDialog(trigger) {
+        interestTextForm.reset();
+
+        openOverlay(textDialog, trigger, interestInput);
+    }
+
+    function closeTextDialog() {
+        closeOverlay(textDialog);
+        interestTextForm.reset();
+    }
+
+    $("addInterestTextBtn").addEventListener("click", function () {
+        openTextDialog(this);
+    });
+
+    $("overlayAddInterestTextBtn").addEventListener("click", function () {
+        openTextDialog(this);
+    });
+
+    interestTextForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const text = interestInput.value.trim();
+
+        if (!text) {
+            interestInput.focus();
+            return;
+        }
+
+        addInterest("text", text);
+        closeTextDialog();
+        showStatus("Interest text added.");
+    });
+
+    $("cancelTextDialog").addEventListener("click", closeTextDialog);
+    $("cancelTextDialogX").addEventListener("click", closeTextDialog);
+
+    textDialog.addEventListener("click", function (event) {
+        if (event.target === textDialog) {
+            closeTextDialog();
+        }
+    });
+
+    const interestPhotoInput = $("interestPhotoInput");
+
+    function chooseInterestPhotos() {
+        interestPhotoInput.click();
+    }
+
+    $("addInterestPhotoBtn").addEventListener("click", chooseInterestPhotos);
+    $("overlayAddInterestPhotoBtn").addEventListener("click", chooseInterestPhotos);
+
+    interestPhotoInput.addEventListener("change", function () {
+        const input = this;
+        const files = Array.from(input.files || []);
+        const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+        if (!imageFiles.length) {
+            if (files.length) showStatus("Please choose image files.");
+            input.value = "";
+            return;
+        }
+
+        let finished = 0;
+        let succeeded = 0;
+
+        imageFiles.forEach(function (file) {
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                addInterest("photo", reader.result);
+                succeeded++;
+                finished++;
+                finishImport();
+            };
+
+            reader.onerror = function () {
+                finished++;
+                finishImport();
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        function finishImport() {
+            if (finished !== imageFiles.length) return;
+
+            input.value = "";
+
+            if (succeeded > 0) {
+                showStatus(succeeded === 1 ? "Photo added." : succeeded + " photos added.");
+            }
+
+            if (succeeded < imageFiles.length) {
+                showStatus("Some photos could not be loaded.");
+            }
+        }
+    });
+
+    $("expandInterestsBtn").addEventListener("click", function () {
+        openOverlay(interestsOverlay, this, $("closeInterestsOverlay"));
+    });
+
+    $("closeInterestsOverlay").addEventListener("click", function () {
+        closeOverlay(interestsOverlay);
+    });
+
+    interestsOverlay.addEventListener("click", function (event) {
+        if (event.target === interestsOverlay) {
+            closeOverlay(interestsOverlay);
+        }
+    });
+
+    /* FULL-SIZE INTEREST PHOTO PREVIEW */
+
+    let imagePreviewOverlay = null;
+
+    function showImagePreview(src) {
+        if (!imagePreviewOverlay) {
+            imagePreviewOverlay = document.createElement("div");
+            imagePreviewOverlay.className = "overlay image-preview-overlay";
+            imagePreviewOverlay.setAttribute("aria-hidden", "true");
+
+            const card = document.createElement("div");
+            card.className = "overlay-card image-preview-card";
+
+            const close = document.createElement("button");
+            close.type = "button";
+            close.className = "overlay-close";
+            close.textContent = "×";
+            close.setAttribute("aria-label", "Close photo preview");
+
+            const image = document.createElement("img");
+            image.className = "image-preview";
+            image.alt = "Expanded interest photo";
+
+            close.addEventListener("click", function () {
+                closeOverlay(imagePreviewOverlay);
+            });
+
+            imagePreviewOverlay.addEventListener("click", function (event) {
+                if (event.target === imagePreviewOverlay) {
+                    closeOverlay(imagePreviewOverlay);
+                }
+            });
+
+            card.append(close, image);
+            imagePreviewOverlay.appendChild(card);
+            document.body.appendChild(imagePreviewOverlay);
+        }
+
+        imagePreviewOverlay.querySelector(".image-preview").src = src;
+        openOverlay(
+            imagePreviewOverlay,
+            document.activeElement,
+            imagePreviewOverlay.querySelector(".overlay-close")
+        );
+    }
+
+    /* MY HOBBIES SLIDESHOW */
+
+    let hobbyPhotos = [
+        { url: "images/hobby1.jpg", name: "A favorite hobby moment" }
+    ];
+    let hobbyIndex = 0;
+    let hobbyTexts = [
+        "Daydreaming",
+        "Playing video games",
+        "Searching for food and places to eat",
+        "Writing poems and stories",
+        "Taking pictures randomly"
+    ];
+
+    const hobbyUpload = $("hobbyUpload");
+    const hobbyImage = $("hobbyImage");
+    const slidePlaceholder = $("slidePlaceholder");
+    const prevBtn = $("prevBtn");
+    const nextBtn = $("nextBtn");
+
+    function renderHobbies() {
+        const thumbnails = $("hobbyThumbnails");
+        thumbnails.replaceChildren();
+
+        if (hobbyPhotos.length === 0) {
+            hobbyImage.hidden = true;
+            hobbyImage.removeAttribute("src");
+            slidePlaceholder.hidden = false;
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+            $("hobbyCaption").textContent =
+                "Your favorite hobby moments will appear here.";
+            return;
+        }
+
+        const photo = hobbyPhotos[hobbyIndex];
+
+        hobbyImage.src = photo.url;
+        hobbyImage.alt = photo.name || "Hobby photo";
+        hobbyImage.hidden = false;
+        slidePlaceholder.hidden = true;
+        $("hobbyCaption").textContent = photo.name || "A favorite hobby moment.";
+
+        const multiple = hobbyPhotos.length > 1;
+        prevBtn.disabled = !multiple;
+        nextBtn.disabled = !multiple;
+
+        hobbyPhotos.forEach(function (item, index) {
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "hobby-thumb" +
+                (index === hobbyIndex ? " active" : "");
+            button.setAttribute("aria-label", "Show hobby photo " + (index + 1));
+
+            const image = document.createElement("img");
+            image.src = item.url;
+            image.alt = "";
+
+            button.appendChild(image);
+
+            button.addEventListener("click", function () {
+                hobbyIndex = index;
+                renderHobbies();
+            });
+
+            thumbnails.appendChild(button);
+        });
+    }
+
+    function previousHobby() {
+        if (hobbyPhotos.length < 2) return;
+
+        hobbyIndex = (hobbyIndex - 1 + hobbyPhotos.length) % hobbyPhotos.length;
+        renderHobbies();
+    }
+
+    function nextHobby() {
+        if (hobbyPhotos.length < 2) return;
+
+        hobbyIndex = (hobbyIndex + 1) % hobbyPhotos.length;
+        renderHobbies();
+    }
+
+    prevBtn.addEventListener("click", previousHobby);
+    nextBtn.addEventListener("click", nextHobby);
+
+    hobbyUpload.addEventListener("change", function () {
+        const input = this;
+        const files = Array.from(input.files || []);
+        const imageFiles = files.filter((file) => file.type.startsWith("image/"));
+
+        if (!imageFiles.length) {
+            if (files.length) showStatus("Please choose image files.");
+            input.value = "";
+            return;
+        }
+
+        const loaded = new Array(imageFiles.length);
+        let finished = 0;
+
+        imageFiles.forEach(function (file, index) {
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                loaded[index] = { url: reader.result, name: file.name };
+                finished++;
+                finishHobbyImport();
+            };
+
+            reader.onerror = function () {
+                finished++;
+                finishHobbyImport();
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        function finishHobbyImport() {
+            if (finished !== imageFiles.length) return;
+
+            const validPhotos = loaded.filter(Boolean);
+
+            if (validPhotos.length) {
+                hobbyPhotos.push(...validPhotos);
+                hobbyIndex = hobbyPhotos.length - validPhotos.length;
+                renderHobbies();
+                showStatus(
+                    validPhotos.length === 1
+                        ? "Hobby photo added."
+                        : validPhotos.length + " hobby photos added."
+                );
+            }
+
+            if (validPhotos.length < imageFiles.length) {
+                showStatus("Some hobby photos could not be loaded.");
+            }
+
+            input.value = "";
+        }
+    });
+
+    /* SWIPE HOBBY PHOTOS ON TOUCHSCREENS */
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    $("slideImageWrap").addEventListener("touchstart", function (event) {
+        if (!event.changedTouches.length) return;
+
+        touchStartX = event.changedTouches[0].clientX;
+        touchStartY = event.changedTouches[0].clientY;
+    }, { passive: true });
+
+    $("slideImageWrap").addEventListener("touchend", function (event) {
+        if (!event.changedTouches.length || hobbyPhotos.length < 2) return;
+
+        const touch = event.changedTouches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+
+        if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy)) {
+            if (dx < 0) {
+                nextHobby();
+            } else {
+                previousHobby();
+            }
+        }
+    }, { passive: true });
+
+    /* ESCAPE CLOSES THE TOPMOST OPEN OVERLAY */
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key !== "Escape") return;
+
+        const overlays = Array.from(document.querySelectorAll(".overlay.is-open"));
+        const topmost = overlays[overlays.length - 1];
+
+        if (topmost) closeOverlay(topmost);
+    });
+
+    /* INITIAL RENDER */
+
+
+    function renderHobbyTexts() {
+        const list = $("hobbyTextList");
+        if (!list) return;
+        list.replaceChildren();
+        hobbyTexts.forEach(function (text) {
+            const item = document.createElement("div");
+            item.className = "hobby-text-item";
+            const label = document.createElement("span");
+            label.textContent = text;
+            item.appendChild(label);
+            list.appendChild(item);
+        });
+    }
+
+    const addHobbyTextBtn = $("addHobbyTextBtn");
+    const hobbyTextEditor = $("hobbyTextEditor");
+    const hobbyTextInput = $("hobbyTextInput");
+
+    if (addHobbyTextBtn && hobbyTextEditor) {
+        addHobbyTextBtn.addEventListener("click", function () {
+            hobbyTextEditor.hidden = false;
+            hobbyTextInput.focus();
+        });
+
+        $("cancelHobbyTextBtn").addEventListener("click", function () {
+            hobbyTextInput.value = "";
+            hobbyTextEditor.hidden = true;
+        });
+
+        $("saveHobbyTextBtn").addEventListener("click", function () {
+            const text = hobbyTextInput.value.trim();
+            if (!text) {
+                hobbyTextInput.focus();
+                return;
+            }
+            hobbyTexts.push(text);
+            hobbyTextInput.value = "";
+            hobbyTextEditor.hidden = true;
+            renderHobbyTexts();
+            showStatus("Hobby added.");
+        });
+    }
+
+    renderHobbyTexts();
+
+    renderInterests();
     renderHobbies();
 });
-
-$("nextBtn").addEventListener("click", () => {
-    if (!hobbyPhotos.length) return;
-
-    currentHobbyIndex = (currentHobbyIndex + 1) % hobbyPhotos.length;
-    renderHobbies();
-});
-
-renderStrengths();
-renderInterests();
-renderHobbies();
