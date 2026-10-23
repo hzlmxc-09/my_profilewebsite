@@ -1441,6 +1441,13 @@ label.pill-action { cursor: pointer; }
 body.light-mode .profile-nickname { color: var(--purple-dark); }
 body.light-mode .motto-heart, body.light-mode .section-heading h2 span { color: var(--purple); }
 
+/* Photos keep their own size and shape: no cropping */
+.interest-entry-photo-only .interest-entry-photo,
+.expanded-interest-list .interest-entry-photo-only .interest-entry-photo {
+    width: 100%; height: auto; max-height: none; object-fit: contain; background: transparent;
+}
+.photo-entry-row { align-items: flex-start; }
+
 </style>
     <script defer>
 
