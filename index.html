@@ -44,9 +44,9 @@
             </div>
 
             <div class="profile-intro">
-                <p class="nickname-label">MY NICKNAME</p>
-                <p class="nickname profile-nickname" id="profileNickname">Elay</p>
                 <h2 id="profileName">Hazel Mae Gelardo Calvo</h2>
+                <p class="nickname-label">NICKNAME</p>
+                <p class="nickname profile-nickname" id="profileNickname">Elay</p>
             </div>
 
             <div class="profile-details">
@@ -146,8 +146,6 @@
                         <p class="eyebrow">MY FAVORITE MOMENTS</p>
                         <h2 id="hobbiesTitle">My Hobbies <span>📸</span></h2>
                     </div>
-                    <label class="round-add upload-add" for="hobbyUpload"
-                           title="Upload hobby photos" aria-label="Upload hobby photos">＋</label>
                 </div>
 
                 <input class="visually-hidden" type="file" id="hobbyUpload"
@@ -156,7 +154,8 @@
                 <p class="section-description">Photos and little things I love doing.</p>
                 <div class="hobby-text-list" id="hobbyTextList"></div>
                 <div class="hobby-text-controls">
-                    <button class="pill-action" id="addHobbyTextBtn" type="button">＋ Add text</button>
+                    <button class="pill-action" id="addHobbyTextBtn" type="button"><span aria-hidden="true">☷</span> Add text</button>
+                    <label class="pill-action" for="hobbyUpload" id="addHobbyPhotoBtn" tabindex="0" role="button"><span aria-hidden="true">▧</span> Add photo</label>
                 </div>
                 <div class="hobby-text-editor" id="hobbyTextEditor" hidden>
                     <textarea id="hobbyTextInput" maxlength="300" placeholder="Write a hobby..." aria-label="Write a hobby"></textarea>
@@ -173,7 +172,7 @@
                         <div class="slide-placeholder" id="slidePlaceholder">
                             <span class="placeholder-icon" aria-hidden="true">▧</span>
                             <strong>Your hobby photos</strong>
-                            <span>Use the + button to add photos.</span>
+                            <span>Tap Add photo to begin your gallery.</span>
                         </div>
                     </div>
 
