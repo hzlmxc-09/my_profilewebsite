@@ -1394,3 +1394,11 @@ body.overlay-open {
     color: var(--text);
     resize: vertical;
 }
+
+/* Name large, nickname smaller, label smallest */
+.profile-intro h2 { font-size: clamp(28px, 2.6vw, 36px); line-height: 1.2; margin-bottom: 8px; }
+.nickname-label { font-size: 8px; margin: 0; }
+.profile-nickname { font-size: 15px; margin: 2px 0 0; letter-spacing: 1.5px; }
+@media (max-width: 520px) { .profile-intro h2 { font-size: 26px; } }
+label.pill-action { cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+.hobby-text-controls { display: flex; gap: 10px; flex-wrap: wrap; }
